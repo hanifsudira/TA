@@ -111,15 +111,15 @@ cols = size[1]
 
 
 class Block:
-    def __init__(self, img, row, col):
+    def __init__(self, row, col):
         rowEnd = row + (init.blockSize - 1)
         colEnd = col + (init.blockSize - 1)
 
         # use copy.copy because python assigns by reference
-        self.pixel = (img[row:rowEnd, col:colEnd, :])
+        self.pixel = (img[row:rowEnd, col:colEnd])
         self.row = row
         self.col = col
-        self.variance = find_variance(self.pixel)
+        self.variance = np.var(self.pixel)
         self.tooLowVariance = self.variance < init.varianceThreshold
         self.subBlock = None
         self.connection = None
@@ -129,7 +129,8 @@ class Block:
 blocks = [Block(row, col) for row in range(rows - init.blockSize)
           for col in range(cols - init.blockSize)]
 
-# sort by variance
+
+#sort by variance
 blocks.sort(key=lambda x: x.variance)
 
 """
@@ -140,25 +141,35 @@ block color
 # this is not efficient, but it is negligible in comparison to overhead of
 # other parts of program, and it's a neat bit of set theory.
 
-blocks = [block for block in blocks if not block.tooLowVariance]
+#blocks = [block for block in blocks if not block.tooLowVariance]
+
 groups = []
 # assign blocks to groups
 blocksPerBucket = len(blocks) / init.numBuckets
 group = 0
 count = 0
-for block in enumerate(blocks):
+groups = [ [] for x in range(init.numBuckets)]
+for block in blocks:
     count += 1
-    groups[group].append = block
+    groups[group].append(block)
     if count > blocksPerBucket:
-        count -= blocksPerBucket
+        count  = 0#blocksPerBucket
+        group += 1
         # group is full, move on to next group
-        groups.append([])
+        #groups.append([])
 
 # assign groups to buckets
 buckets = [None] * init.numBuckets
 
 for n in range(init.numBuckets):
-    buckets[n] = group[n - 1] + group[n] + group[n + 1]
+    try:
+        buckets[n] = groups[n - 1] + groups[n] + groups[n + 1]
+    except IndexError:
+        if n == init.numBuckets - 1:
+            buckets[n] = groups[n - 1] + groups[n]
+        else:
+            raise IndexError
+
 
 
 def process_bucket(bucket, init):
@@ -183,7 +194,7 @@ def process_bucket(bucket, init):
 
     # calculate test statistic of block-to-block similarity
     def calculate_test_statistic(bucket):
-        test_statistic = np.zeros(len(bucket), len(bucket))
+        test_statistic = np.zeros((len(bucket), len(bucket)))
         for index, subBlock in enumerate(subBlocks):
             pixel_diff = np.sum((subBlock - subBlocks) ** 2, axis=1)
             sigmaSq = (variance[index] + variance) / 2.
@@ -200,7 +211,7 @@ def process_bucket(bucket, init):
         too_similar = test_statistic < pValThreshold
         # blocks are "connected" if they occur by chance < 1% of the time and
         # do not overlap.
-        connection = np.any(np.logical_and(~overlap, too_similar), [0])
+        connection = np.any(np.logical_and(overlap, np.logical_not(too_similar)))
         return connection
 
     """
@@ -213,6 +224,7 @@ def process_bucket(bucket, init):
 
     subSize = 1
     variance = [block.variance for block in bucket]
+
     count = 0
     while subSize < init.blockSize:
         # sanity check for while loop
@@ -232,7 +244,7 @@ def process_bucket(bucket, init):
         # if so, we consider those connections false positives and empty bucket
         # then kick out early
 
-        if (sum(connection) * init.blockSize) < init.minArea:
+        if (len(bucket) * init.blockSize) < init.minArea:
             bucket = []
             return bucket
 
@@ -247,4 +259,5 @@ def process_bucket(bucket, init):
 """
 call process_bucket with one-line list comprehension
 """
-buckets = [process_bucket(bucket) for bucket in buckets]
+buckets = [process_bucket(bucket,init) for bucket in buckets]
+print bucket
