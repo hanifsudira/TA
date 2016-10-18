@@ -1,11 +1,8 @@
 import time
-import sys
+import os
 import numpy as np
-#import scipy.misc
 from skimage import io, color
-#from scipy.stats import chisquare
 from sklearn.feature_extraction import image
-#from operator import itemgetter
 from scipy.stats.distributions import chi2
 
 class Block:
@@ -21,6 +18,7 @@ class Block:
 class ExpandingBlockAlgorithm:
     def __init__(self,filename):
         try:
+            self.filename = filename
             self.image = io.imread(filename)
             self.height, self.width, self.channel = np.shape(self.image)
             self.size = self.height * self.width
@@ -40,11 +38,11 @@ class ExpandingBlockAlgorithm:
     def buildOverLapBlock(self):
         print "Fungsi Build Overlapping"
         self.overLappingBlock = image.extract_patches_2d(self.grayScaleImage, (self.blockSize,self.blockSize))
-        self.overLappingBlock = []
-        for i in range(self.height - self.blockSize +1 ):
-            for j in range(self.width - self.blockSize + 1):
-                self.overLappingBlock.append(Block(self.grayScaleImage,i,j,self.blockSize,self.varianceThreshold))
-        self.overLappingBlock.sort(key=lambda val: val.variance)
+        #self.overLappingBlock = []
+        #for i in range(self.height - self.blockSize +1 ):
+        #    for j in range(self.width - self.blockSize + 1):
+        #        self.overLappingBlock.append(Block(self.grayScaleImage,i,j,self.blockSize,self.varianceThreshold))
+        #self.overLappingBlock.sort(key=lambda val: val.variance)
         self.sizeOverLappingBlock = len(self.overLappingBlock)
         print self.sizeOverLappingBlock
         print "Selesai Fungsi Overlapping"
@@ -156,7 +154,7 @@ class ExpandingBlockAlgorithm:
             print "Cupu"
         mask = self.createMask()
         imageOut = np.uint8(self.writeMask(mask))
-        io.imsave("hasil4.png",imageOut)
+        io.imsave("../Hasil/"+filename,imageOut)
         print "Fungsi Build Copy Move"
 
     def createMask(self):
@@ -228,7 +226,10 @@ class ExpandingBlockAlgorithm:
 
 if __name__ == '__main__':
     startTime = time.time()
-    Run = ExpandingBlockAlgorithm("02_tree.png")
-    Run.expandingBlockAlgorithm()
-    endTime = time.time()
-    print "Proccess Time : " + str(endTime - startTime)
+    folder = os.listdir("../Dataset")
+    for file in folder:
+        filename = "../Dataset/"+file
+        Run = ExpandingBlockAlgorithm(filename)
+        Run.expandingBlockAlgorithm()
+        endTime = time.time()
+        print "Proccess Time File : "+file+" "+str(endTime - startTime)
