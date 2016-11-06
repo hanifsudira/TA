@@ -1,5 +1,4 @@
-import time
-import os
+import time, os, sys
 import numpy as np
 from skimage import io, color
 from sklearn.feature_extraction import image
@@ -11,7 +10,6 @@ class Block:
         colEnd          = col + (blockSize-1)
         self.row        = row
         self.col        = col
-        self.coor       = (row,col)
         self.pixel      = image[row:rowEnd,col:colEnd]
         self.variance   = np.var(self.pixel)
 
@@ -24,25 +22,25 @@ class ExpandingBlockAlgorithm:
             self.size = self.height * self.width
             self.grayScaleImage = color.rgb2gray(self.image)
             self.setValue()
-            self.pvalThreshold = 0.99
+            self.pvalThreshold = 0.95
         except:
             print "File Gambar Tidak Ditemukan"
 
     def expandingBlockAlgorithm(self):
         self.buildOverLapBlock()
-        #self.createGroup()
-        #self.createBucket()
-        #self.copyMoveDetection()
-        #self.buildCopyMoveImage()
+        self.createGroup()
+        self.createBucket()
+        self.copyMoveDetection()
+        self.buildCopyMoveImage()
 
     def buildOverLapBlock(self):
         print "Fungsi Build Overlapping"
-        self.overLappingBlock = image.extract_patches_2d(self.grayScaleImage, (self.blockSize,self.blockSize))
-        #self.overLappingBlock = []
-        #for i in range(self.height - self.blockSize +1 ):
-        #    for j in range(self.width - self.blockSize + 1):
-        #        self.overLappingBlock.append(Block(self.grayScaleImage,i,j,self.blockSize,self.varianceThreshold))
-        #self.overLappingBlock.sort(key=lambda val: val.variance)
+        #self.overLappingBlocks = image.extract_patches_2d(self.grayScaleImage, (self.blockSize,self.blockSize))
+        self.overLappingBlock = []
+        for i in range(self.height - self.blockSize +1 ):
+            for j in range(self.width - self.blockSize + 1):
+                self.overLappingBlock.append(Block(self.grayScaleImage,i,j,self.blockSize,self.varianceThreshold))
+        self.overLappingBlock.sort(key=lambda val: val.variance)
         self.sizeOverLappingBlock = len(self.overLappingBlock)
         print self.sizeOverLappingBlock
         print "Selesai Fungsi Overlapping"
@@ -154,7 +152,8 @@ class ExpandingBlockAlgorithm:
             print "Cupu"
         mask = self.createMask()
         imageOut = np.uint8(self.writeMask(mask))
-        io.imsave("../Hasil/"+filename,imageOut)
+        self.filename = self.filename.split("/")[2]
+        io.imsave("../Hasil/"+self.filename,imageOut)
         print "Fungsi Build Copy Move"
 
     def createMask(self):
@@ -179,10 +178,10 @@ class ExpandingBlockAlgorithm:
         imgMasked = np.uint8(255 * color.gray2rgb(color.rgb2gray(self.image)))
         imgMasked[mask == FILL_CHANNEL] = 255
         imgMasked[mask == REMOVE_CHANNEL] = 0
-        row = self.height
-        separator = np.ones((row,16,3),dtype=np.uint8)
-        imageOut = np.concatenate((self.image,separator,imgMasked), axis=1)
-        return imageOut
+        #row = self.height
+        #separator = np.ones((row,16,3),dtype=np.uint8)
+        #imageOut = np.concatenate((self.image,separator,imgMasked), axis=1)
+        return imgMasked #imageOut
 
     def setValue(self):
         if self.size <= 50**2:
