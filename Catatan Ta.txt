@@ -1,0 +1,29 @@
+pengecekan offside 2 blok
+
+blok i  ------- blok j
+(Xi,Yi) ------- (Xj,Yj)
+
+offside(Xi-Xj, Yi-Yj)
+
+hitung magnitude dengan menggunakan euclidean distance
+
+tentukan offside thresshold.
+bandingkan offside thresshold dengan magnitude
+
+---------------------------------------------------------------
+
+Semakin kecil MSE antar 2 blok, semakin mirip.
+cari threshold MSE (3 - 5) gambar
+
+---------------------------------------------------------------
+
+Pembuatan garis tepi copy move.
+Perubahan di gambar asli dari pengecekan copy move hitam putih
+ada 8 pengecekan 
+4 ujung sama, 4 tepi atas kiri kanan.
+
+---------------------------------------------------------------
+
+Similiarity - > total nilai pixel yang sama dibagi sama total seluruh pixel.
+
+

@@ -39,8 +39,8 @@ class ExpandingBlockAlgorithm:
             print row - np.reshape(row, (-1, 1))
             print rowDistance < self.blockSize
             break
-        #self.copyMoveDetection()
-        #self.buildCopyMoveImage()
+        self.copyMoveDetection()
+        self.buildCopyMoveImage()
 
     def buildOverLapBlock(self):
         print "Fungsi Build Overlapping"

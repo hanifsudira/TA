@@ -1,0 +1,6 @@
+{
+  "threshold" :{
+    "pval" : 0.95,
+    "minArea" : 1
+  }
+}

@@ -232,3 +232,4 @@ if __name__ == '__main__':
         Run.expandingBlockAlgorithm()
         endTime = time.time()
         print "Proccess Time File : "+file+" "+str(endTime - startTime)
+        break
