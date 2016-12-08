@@ -1,8 +1,6 @@
-from PyQt5.QtCore import QDir, Qt
-from PyQt5.QtGui import QImage, QPainter, QPalette, QPixmap
-from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog, QLabel,
-        QMainWindow, QMenu, QMessageBox, QScrollArea, QSizePolicy, QVBoxLayout)
-from PyQt5.QtPrintSupport import QPrintDialog, QPrinter
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
 
 class CopyMoveGUI(QMainWindow):
     def __init__(self):
@@ -10,11 +8,37 @@ class CopyMoveGUI(QMainWindow):
         self.initUI()
 
     def initUI(self):
-        self.setGeometry(600,800,800,600)
+        self.setGeometry(1000,1000,1000,800)
         self.setWindowTitle("Copy Move Detection")
         self.centerWindow()
         self.createAction()
         self.createMenuBar()
+
+        self.widget = QWidget()
+        #hbox = QHBoxLayout(self)
+        #topleft = QFrame()
+        #topleft.setFrameShape(QFrame.StyledPanel)
+        #bottom = QFrame()
+        #bottom.setFrameShape(QFrame.StyledPanel)
+
+        #splitter1 = QSplitter(Qt.Horizontal)
+        #splitter1.addWidget(topleft)
+        #splitter1.addWidget(bottom)
+
+        #splitter1.setCollapsible(0,False)
+
+        #splitter2 = QSplitter(Qt.Horizontal)
+        #splitter2.addWidget(splitter1)
+        #splitter2.addWidget(bottom)
+        #hbox.addWidget(splitter1)
+        #QApplication.setStyle(QStyleFactory.create('Cleanlooks'))
+        layout = QVBoxLayout()
+        label = QLabel()
+        layout.addWidget(label)
+        verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        layout.addItem(verticalSpacer)
+        self.widget.setLayout(layout)
+        self.setCentralWidget(self.widget)
 
     def centerWindow(self):
         frameGm = self.frameGeometry()
